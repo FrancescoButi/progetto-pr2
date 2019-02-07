@@ -25,7 +25,7 @@ import java.util.Collections;
  			- utente compone una Hash map di coppie di string: HashMap<String,String> 
 			-DatiUtente compone una Hash map di coppie di string e arraylist: HashMap<String,ArrayList<E>>
 			
-			generico <E>: Ë un tipo generico di dato che userÚ come dati utente
+			generico <E>: √® un tipo generico di dato che user√≤ come dati utente
 
  */
 
@@ -41,10 +41,10 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 
 
 /*	METODO CREATEUSER:
-	EFFECTS: genera un utente da inserire se non ne esiste gi‡ uno con lo stesso username
+	EFFECTS: genera un utente da inserire se non ne esiste gi√† uno con lo stesso username
 	MODIFIES: DatiUtente, Utente
 	THROWS: IllegalArgumentException se Id == null o passw == null 
-			UserExistException se esiste gi‡ un utente registrato con quell'id
+			UserExistException se esiste gi√† un utente registrato con quell'id
 
 */
 
@@ -53,7 +53,7 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 		if(!this.isValidValue(Id, passw)) throw new IllegalArgumentException("lo username e la password devono essere"
 				+ " di lunghezza compresa tra 5 e 20 caratteri");
 
-		if(this.userExists(Id)) throw new UserExistException("L'utente Ë gi‡ registrato! ");
+		if(this.userExists(Id)) throw new UserExistException("L'utente √® gi√† registrato! ");
 
 		utente.put(Id, passw);
 		DatiUtente.put(Id, new ArrayList<E>());
@@ -112,7 +112,7 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 	MODIFIES: -
 	THROWS:	IllegalArgumentException se Owner == null o passw == null o l'oggetto data == null
 			UserNotFoundException se non esiste corrispondenza tra username e password forniti
-			DataMissingException se non Ë possibile trovare nei dati dell'utente l'oggetto
+			DataMissingException se non √® possibile trovare nei dati dell'utente l'oggetto
 
 */
 	
@@ -145,7 +145,7 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 	MODIFIES: this
 	THROWS:	IllegalArgumentException se Owner == null o passw == null o l'oggetto data == null
 			UserNotFoundException se non esiste corrispondenza tra username e password forniti
-			DataMissingException se non Ë possibile trovare nei dati dell'utente l'oggetto
+			DataMissingException se non √® possibile trovare nei dati dell'utente l'oggetto
 */
 
 	public E remove(String Owner, String passw, E data) throws UserNotFoundException, DataMissingException {
@@ -208,7 +208,7 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 	MODIFIES: DatiUtente
 	THROWS: IllegalArgumentException se Owner == null o passw == null o l'oggetto data == null
 			UserNotFoundException se non esiste corrispondenza tra username e password forniti
-			DataMissingException se non Ë possibile trovare nei dati dell'utente l'oggetto da copiare
+			DataMissingException se non √® possibile trovare nei dati dell'utente l'oggetto da copiare
 */
 
 	public void copy(String Owner, String passw, E data) throws IllegalArgumentException,UserNotFoundException,DataMissingException {
@@ -240,7 +240,7 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 	MODIFIES: -
 	THROWS:	IllegalArgumentException se Owner == null o passw == null o l'oggetto data == null
 			UserNotFoundException se non esiste corrispondenza tra username e password forniti
-			DataMissingException se non Ë possibile trovare nei dati dell'utente l'oggetto
+			DataMissingException se non √® possibile trovare nei dati dell'utente l'oggetto
  */
 	public void share(String Owner, String passw, String Other, E data) throws UserNotFoundException{
 
@@ -338,7 +338,7 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 	MODIFIES: -
 	THROWS:	IllegalArgumentException se Owner == null o passw == null o l'oggetto data == null
 			UserNotFoundException se non esiste corrispondenza tra username e password forniti
-			DataMissingException se non Ë possibile trovare nei dati dell'utente l'oggetto
+			DataMissingException se non √® possibile trovare nei dati dell'utente l'oggetto
 
 */
 
@@ -377,11 +377,11 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 
 */
 
-	public boolean userExists(String Id) {		
+	public boolean userExists(String user) {		
 
 		for(Map.Entry<String, String> key : utente.entrySet()) 
 
-			if(key.getKey() == Id)return true;
+			if(key.getKey() == user)return true;
 
 		return false;
 
