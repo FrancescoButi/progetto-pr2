@@ -156,9 +156,9 @@ let rec eval (e:exp) (r : evT env) : evT = (match e with
 	Or(a, b) -> vel (eval a r) (eval b r) |
 	Not a -> non (eval a r) |
 	(*Dictionary, composto da una lista di coppie*) 
-	Dictionary( (ls : 'a list ) ) -> 
+	Dictionary( (lista : 'a list ) ) -> 
 		(
-			match ls with 
+			match lista with 
 				[] -> Dict([]) |
 				(x,y) :: xs -> 
 					(
@@ -174,20 +174,20 @@ let rec eval (e:exp) (r : evT env) : evT = (match e with
 		) |
 	(*DictGet, restituisce il dato associato al nome passato per parametro
 	avvalendosi della search*) 
-	DictGet(name , v ) -> 
-		let ls = applyenv r name in 
+	DictGet(nome , valore ) -> 
+		let ls = applyenv r nome in 
 			(
 				match ls with 
-					Dict(lis) -> search v lis |
+					Dict(lis) -> search valore lis |
 					_ -> failwith("non dictionary value") 
 			)	|
 	(*DictRm, elimina il dato associato al nome passato per parametro
 	avvalendosi della delete*) 
-	DictRm(name , v ) -> 
-		let ls = applyenv r name in 
+	DictRm(nome , valore ) -> 
+		let ls = applyenv r nome in 
 			(
 				match ls with 
-					Dict(lis) -> Dict(delete v lis) |
+					Dict(lis) -> Dict(delete valore lis) |
 					_ -> failwith("non dictionary value") 
 			)	|
 	(*DictAdd, aggiunge il valore passato per parametro
@@ -211,8 +211,8 @@ let rec eval (e:exp) (r : evT env) : evT = (match e with
 					_ ->  failwith("non dictionary value")
 			) |
 	(*DictClear, azzera il dizionario associato al nome passato per parametro*) 
-	DictClear(name) -> 
-		let ls = applyenv r name in
+	DictClear(nome) -> 
+		let ls = applyenv r nome in
 	 		if ls = Unbound then
 				 failwith("non dictionary value")
 			else 
@@ -223,13 +223,13 @@ let rec eval (e:exp) (r : evT env) : evT = (match e with
 			) |
 	(*ApplyOver, esegue una funzione passata per parametro a tutti gli elementi 
 		di un dizionario (solo al secondo elemento della coppia, che rappresenta il dato)*) 
-	ApplyOver(func ,dict) -> (
+	ApplyOver(funzione ,dict) -> (
 		match dict with
 			Den x ->  
 				let ls = applyenv r x in 
 					(
 						match ls with 
-							Dict(lis) -> Dict( List.map (funeval func r) lis )	|
+							Dict(lis) -> Dict( List.map (funeval funzione r) lis )	|
 							_ -> failwith("non dictionary value")
 					) |
 			Dictionary(ls) -> 
@@ -238,11 +238,11 @@ let rec eval (e:exp) (r : evT env) : evT = (match e with
 						[] -> Dict([]) |
 						(x,y) :: xs -> 
 							(
-								match eval (ApplyOver(func,Dictionary xs)) r with
+								match eval (ApplyOver(funzione,Dictionary xs)) r with
 									Dict(lis) -> 
 										if not(is_in x lis ) 
 											then 
-												Dict((x, (eval (FunCall(func,y)) r) ) :: lis)
+												Dict((x, (eval (FunCall(funzione,y)) r) ) :: lis)
 											else
 												Dict(lis)	|
 									_ -> failwith("non dictionary value")
@@ -255,7 +255,7 @@ let rec eval (e:exp) (r : evT env) : evT = (match e with
 			if (typecheck "bool" g) 
 				then (if g = Bool(true) then (eval b r) else (eval c r))
 				else failwith ("nonboolean guard") |
-	Let(i, e1, e2) -> eval e2 (bind r i (eval e1 r)) |
+	Let(i, a, b) -> eval b (bind r i (eval a r)) |
 	Fun(i, a) -> FunVal(i, a, r) |
 	FunCall(f, eArg) -> 
 		let fClosure = (eval f r) in
