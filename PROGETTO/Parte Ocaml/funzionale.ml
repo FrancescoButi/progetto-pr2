@@ -123,19 +123,19 @@ let non x = if (typecheck "bool" x)
 		| _ -> failwith("Type error"))
 	else failwith("Type error");;
 
-(* Ricerca di una chiave all'interno del dizionario , se eseguita con successo restituisce il valore *)
+(* cerca la chiave nel dizionario, se va a buon fine restituisce il valore associato *)
 let rec search ( v : ide ) ( ls : (ide * evT) list ) = 
 	match ls with 
 		[] -> failwith("Value not found ") |
 		(x,y)::xs -> if v =  x then y else search v xs;;
 
-(* Elimina il valore con la chiave equivalente , se non è presente restituisce la lista senza modifiche *)
+(* cerca la chiave e, se la trova, elimina il dato corrispondente *)
 let rec delete ( v : ide ) ( ls : (ide * evT) list ) = 
 	match ls with 
 		[] -> [] |
 		(x,y) :: xs -> if v =  x then delete v xs else (x,y) :: delete v xs ;;
 
-(* Valuta se la chiave richiesta si trova all'interno della lista *)
+(* ricerca la chiave nella lista, restituisce true se la trova *)
 let rec is_in (v : ide ) (ls : (ide * evT) list ) = 
 	match ls with 
 		[] -> false |
@@ -155,6 +155,7 @@ let rec eval (e:exp) (r : evT env) : evT = (match e with
 	And(a, b) -> et (eval a r) (eval b r) |
 	Or(a, b) -> vel (eval a r) (eval b r) |
 	Not a -> non (eval a r) |
+	(*Dictionary, composto da una lista di coppie*) 
 	Dictionary( (ls : 'a list ) ) -> 
 		(
 			match ls with 
@@ -171,6 +172,8 @@ let rec eval (e:exp) (r : evT env) : evT = (match e with
 							_ -> failwith("non dictionary value")
 					)
 		) |
+	(*DictGet, restituisce il dato associato al nome passato per parametro
+	avvalendosi della search*) 
 	DictGet(name , v ) -> 
 		let ls = applyenv r name in 
 			(
@@ -178,6 +181,8 @@ let rec eval (e:exp) (r : evT env) : evT = (match e with
 					Dict(lis) -> search v lis |
 					_ -> failwith("non dictionary value") 
 			)	|
+	(*DictRm, elimina il dato associato al nome passato per parametro
+	avvalendosi della delete*) 
 	DictRm(name , v ) -> 
 		let ls = applyenv r name in 
 			(
@@ -185,7 +190,8 @@ let rec eval (e:exp) (r : evT env) : evT = (match e with
 					Dict(lis) -> Dict(delete v lis) |
 					_ -> failwith("non dictionary value") 
 			)	|
-
+	(*DictAdd, aggiunge il valore passato per parametro
+	avvalendosi is_in per verificarne l'eventuale presenza*) 
 	DictAdd(dict,value) -> 
 		let ls = applyenv r dict in 
 			(
@@ -194,17 +200,17 @@ let rec eval (e:exp) (r : evT env) : evT = (match e with
 						(
 							match value with
 								(x,y) -> 
-								if not(is_in x list)
-									then 
+								if not(is_in x list) then 
 										Dict((x, (eval y r))::list) 
 								else 
 								(
-									let new_ls = delete x list in 
-										Dict((x, (eval y r))::new_ls) 
+									let list2 = delete x list in 
+										Dict((x, (eval y r))::list2) 
 								)
 						)	|
 					_ ->  failwith("non dictionary value")
 			) |
+	(*DictClear, azzera il dizionario associato al nome passato per parametro*) 
 	DictClear(name) -> 
 		let ls = applyenv r name in
 	 		if ls = Unbound then
@@ -215,13 +221,15 @@ let rec eval (e:exp) (r : evT env) : evT = (match e with
 					Dict(lis) -> Dict([]) |
 					_ -> failwith("non dictionary value")
 			) |
+	(*ApplyOver, esegue una funzione passata per parametro a tutti gli elementi 
+		di un dizionario (solo al secondo elemento della coppia, che rappresenta il dato)*) 
 	ApplyOver(func ,dict) -> (
 		match dict with
 			Den x ->  
 				let ls = applyenv r x in 
 					(
 						match ls with 
-							Dict(lis) -> Dict( List.map (funEvT func r) lis )	|
+							Dict(lis) -> Dict( List.map (funeval func r) lis )	|
 							_ -> failwith("non dictionary value")
 					) |
 			Dictionary(ls) -> 
@@ -265,7 +273,7 @@ let rec eval (e:exp) (r : evT env) : evT = (match e with
             Fun(i, fBody) -> let r1 = (bind r f (RecFunVal(f, (i, fBody, r)))) in
                          			          eval letBody r1 |
 						_ -> failwith("non functional def"))) 
-	and funCallEvT f r eArg =
+	and funcalleval f r eArg =
 		(let fClosure = (eval f r) in
 			(match fClosure with
 				FunVal(arg, fBody, fDecEnv) -> 
@@ -276,14 +284,12 @@ let rec eval (e:exp) (r : evT env) : evT = (match e with
 							let aEnv = (bind rEnv arg aVal) in
 								eval fBody aEnv |
 				_ -> failwith("non functional value")))
-	and funEvT f r v  = 
+	and funeval f r v  = 
 		match v with 
-			(x,y) -> ( x , funCallEvT f r (y)) 
+			(x,y) -> ( x , funcalleval f r (y)) 
 ;;
 
-(* =============================  TESTS  ================= *)
-(* basico: no let *)
-
+(* ==========================================================  BATTERIA DI TEST ========================================================== *)
 let env0 = emptyenv Unbound;;
 let diz1 = Dictionary([]);;
 eval diz1 env0;;
