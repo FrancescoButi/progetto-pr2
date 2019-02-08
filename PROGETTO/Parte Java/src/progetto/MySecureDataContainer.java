@@ -70,9 +70,7 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
  */
 
 	public int getSize(String Owner, String passw) throws UserNotFoundException {
-
 		
-
 		if(!this.isValidValue(Owner, passw)) throw new IllegalArgumentException("lo username e la password devono essere"
 				+ " di lunghezza compresa tra 5 e 20 caratteri");
 
@@ -93,7 +91,6 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 	public boolean put(String Id, String password, E data) throws UserNotFoundException {
 
 		
-
 		if(!this.isValidValue(Id, password)) throw new IllegalArgumentException("lo username e la password devono essere"
 						+ " di lunghezza compresa tra 5 e 20 caratteri");
 
@@ -102,7 +99,6 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 		if(!this.userExists(Id, password)) throw new UserNotFoundException("Username o password errati!");
 
 		
-
 		return DatiUtente.get(Id).add(data);
 
 	}
@@ -119,7 +115,6 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 	public E get(String Owner, String passw, E data) throws UserNotFoundException, DataMissingException {
 
 		
-
 		if(!this.isValidValue(Owner, passw)) throw	new IllegalArgumentException("lo username e la password devono essere"
 				+ " di lunghezza compresa tra 5 e 20 caratteri");
 		
@@ -148,56 +143,33 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 			DataMissingException se non è possibile trovare nei dati dell'utente l'oggetto
 */
 
-	public E remove(String Owner, String passw, E data) throws UserNotFoundException, DataMissingException {
+	public E remove(String id, String passw, E dati) throws UserNotFoundException, DataMissingException {
 
 		
 
-		if(!this.isValidValue(Owner, passw)) throw new IllegalArgumentException("lo username e la password devono essere"
+		if(!this.isValidValue(id, passw)) throw new IllegalArgumentException("lo username e la password devono essere"
 						+ " di lunghezza compresa tra 5 e 20 caratteri");
 
 		
 
-		if(data == null)
+		if(data == null) throw new IllegalArgumentException("Oggetto non valido!");
 
-			throw
+		if(!this.userExists(id, passw)) throw new UserNotFoundException("Username o password errati!");
 
-				new IllegalArgumentException("Oggetto non valido!");
+		boolean trovato = false;
 
-		
+		for(int i = 0; i<DatiUtente.get(id).size();i++) 
 
-		if(!this.userExists(Owner, passw)) 
-
-			throw 
-
-				new UserNotFoundException("Username o password errati!");
-
-		
-
-		boolean dataFound = false;
-
-		for(int i = 0; i<DatiUtente.get(Owner).size();i++) 
-
-			if(DatiUtente.get(Owner).get(i).equals(data)) {
-
-				DatiUtente.get(Owner).remove(i);
-
-				dataFound = true;
-
+			if(DatiUtente.get(id).get(i).equals(dati)) {
+				DatiUtente.get(id).remove(i);
+				trovato = true;
 			}
 
 		
 
-		if(!dataFound)
+		if(!trovato) throw new DataMissingException("Oggetto non trovato !");
 
-			throw 
-
-				new DataMissingException("Oggetto non trovato !");
-
-
-
-		return 
-
-			data;
+		return dati;
 
 			
 
@@ -267,15 +239,11 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 
 			if(DatiUtente.get(Owner).get(i).equals(data)) 
 
-				dataExist = true;
-
-			
+				dataExist = true;		
 
 		if(!dataExist) 
 
 			DatiUtente.get(Owner).add(data);
-
-	
 
 		DatiUtente.get(Other).add(data);
 
@@ -293,16 +261,15 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 */
 
 
-	public Iterator<E> getIterator(String Owner, String passw) throws UserNotFoundException {
+	public Iterator<E> getIterator(String id, String password) throws UserNotFoundException {
 
 		
-
-		if(!this.isValidValue(Owner, passw)) throw new IllegalArgumentException("lo username e la password devono essere"
+		if(!this.isValidValue(id, password)) throw new IllegalArgumentException("lo username e la password devono essere"
 				+ " di lunghezza compresa tra 5 e 20 caratteri");
 
-		if(!this.userExists(Owner, passw)) throw new UserNotFoundException("Username o password errati!");
+		if(!this.userExists(id, password)) throw new UserNotFoundException("Username o password errati!");
 
-		List<E> list =DatiUtente.get(Owner);
+		List<E> list =DatiUtente.get(id);
 
 		return Collections.unmodifiableList(list).iterator();
 
@@ -320,16 +287,8 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 	THROWS:	-
 */
 
-	private boolean isValidValue(String Id , String passw) {
-
-		
-
-		return 
-
-				!(Id == null || passw == null || Id.length() < 5 || Id.length() > 20 
-
-					|| passw.length() <= 5 || passw.length() >= 20);
-
+	private boolean isValidValue(String Id , String password) {
+		return !(Id == null || password == null || Id.length() < 5 || Id.length() > 20 || password.length() <= 5 || password.length() >= 20);
 	}
 
 /*	METODO GETSIZE:
@@ -342,22 +301,22 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 
 */
 
-	public int numberOf(String Owner, String passw, E data) throws UserNotFoundException {
+	public int numberOf(String id, String password, E dati) throws UserNotFoundException {
 
 		
 
-		if(!this.isValidValue(Owner, passw)) throw new IllegalArgumentException("lo username e la password devono essere"
+		if(!this.isValidValue(id, password)) throw new IllegalArgumentException("lo username e la password devono essere"
 						+ " di lunghezza compresa tra 5 e 20 caratteri");
 
-		if(data == null)
+		if(dati == null)
 			throw new IllegalArgumentException("Oggetto non valido!");
 
-		if(!this.userExists(Owner, passw)) throw new UserNotFoundException("Utente non presente nella lista!");
+		if(!this.userExists(id, password)) throw new UserNotFoundException("Utente non presente nella lista!");
 
 		int cont = 0;
 
-		for(int i = 0; i<DatiUtente.get(Owner).size();i++) 
-			if(DatiUtente.get(Owner).get(i).equals(data)) 
+		for(int i = 0; i<DatiUtente.get(id).size();i++) 
+			if(DatiUtente.get(id).get(i).equals(dati)) 
 				cont++;		
 
 		return cont;
@@ -395,9 +354,7 @@ public class MySecureDataContainer<E> implements SecureDataContainer<E> {
 
 */
 
-	public boolean userExists(String Id, String passw) {
-
-		
+	public boolean userExists(String Id, String passw) {	
 
 		for(Map.Entry<String, String> key : utente.entrySet()) 
 
